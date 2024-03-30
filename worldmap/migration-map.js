@@ -1,8 +1,4 @@
 function init() {
-    // Initialize the map
-    // [50, -0.1] are the latitude and longitude
-    // 4 is the zoom
-    // mapid is the id of the div where the map will appear
     var map = L
     .map('mapid')
     .setView([48.8566, 2.3522], 5);
@@ -14,183 +10,61 @@ function init() {
         maxZoom: 18
     })
 
+    const countryCodes = ['spain', 'italy', 'greece', 'bulgaria', 'hungary', 'albania', 'malta', 'kosovo', 'montenegro'];
+
+    const yearRange = [2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023];
+
+    // Visualize for each year in the range
+    for (let year = yearRange[0]; year <= yearRange[1]; year++) {
+        visualizeYear(year);
+    }
+
+    function visualizeYear(year) {
+        console.log("Visualizing year:", year); 
+        countryCodes.forEach(countryCode => {
+            visualizeCountry(countryCode, year);
+        });
+    } 
+
+    function visualizeCountry(countryCode, year) {
+        console.log("Visualizing country:", countryCode, "for year:", year);
+        const csvFile = `to_${countryCode}${year}.csv`;
+        const markerColor = countryCode === 'bulgaria' || countryCode === 'hungary' ? 'green' : 'orange';
+        const popupId = `popup-chart-${countryCode}`;
     
-
-    const countryVisualizations = {
-        'spain': spainVisualization,
-        'italy': italyVisualization,
-        'greece': greeceVisualization,
-        'bulgaria': bulgariaVisualization,
-        'hunagry': hungaryVisualization,
-        'albania': albaniaVisualization,
-        'kosovo': kosovoVisualization,
-        'montenegro': montenegroVisualization,
-        'malta': montenegroVisualization
-    };
-
+        // Fetch the coordinates for the current country from arrival_coor.json
+        fetch('coordinates/arrival_coor.json')
+            .then(response => response.json())
+            .then(coordinates => {
+                const countryCoordinates = coordinates[countryCode] || [];
     
-
-    function spainVisualization(coordinate) {
-        var spainMarker = L.circleMarker([coordinate.lat, coordinate.lon], {
-            color: 'orange',
-            fillColor: 'orange',
-            fillOpacity: 0.5,
-            radius: 20
-        }).addTo(map);
-
-        spainMarker.on('click', function() {
-            var popupContent = '<div id="popup-chart-spain" style="width: 200px; height: 200px;"></div>';
-            var popup = spainMarker.bindPopup(popupContent).openPopup();
-
-            d3.csv("to_eu16-23/to_spain2016.csv").then(function(data) {
-                createVisualization("#popup-chart-spain", data, "By land", "By sea");
+                // Create a marker for each coordinate
+                countryCoordinates.forEach(coordinate => {
+                    const marker = L.circleMarker([coordinate.lat, coordinate.lon], {
+                        color: markerColor,
+                        fillColor: markerColor,
+                        fillOpacity: 0.5,
+                        radius: 20
+                    }).addTo(map);
+    
+                    const dataUrl = `to_eu16-23/${csvFile}`;
+    
+                    marker.on('click', function() {
+                        var popupContent = `<div id="${popupId}" style="width: 200px; height: 200px;"></div>`;
+                        var popup = marker.bindPopup(popupContent).openPopup();
+    
+                        console.log("Fetching data from URL:", dataUrl);
+    
+                        d3.csv(dataUrl).then(function(data) {
+                            createVisualization(`#${popupId}`, data, "By land", "By sea");
+                        });
+                    });
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching coordinates:', error);
             });
-        });
-    }
-
-    function italyVisualization(coordinate) {
-        var italyMarker = L.circleMarker([coordinate.lat, coordinate.lon], {
-            color: 'green',
-            fillColor: 'green',
-            fillOpacity: 0.5,
-            radius: 20
-        }).addTo(map);
-
-        italyMarker.on('click', function() {
-            var popupContent = '<div id="popup-chart-italy" style="width: 200px; height: 200px;"></div>';
-            var popup = italyMarker.bindPopup(popupContent).openPopup();
-
-            d3.csv("to_eu16-23/to_italy2016.csv").then(function(data) {
-                createVisualization("#popup-chart-italy", data, "By land", "By sea");
-            });
-        });
-    }
-
-    function greeceVisualization(coordinate) {
-        var greeceMarker = L.circleMarker([coordinate.lat, coordinate.lon], {
-            color: 'orange',
-            fillColor: 'orange',
-            fillOpacity: 0.5,
-            radius: 20
-        }).addTo(map);
-
-        greeceMarker.on('click', function() {
-            var popupContent = '<div id="popup-chart-greece" style="width: 200px; height: 200px;"></div>';
-            var popup = greeceMarker.bindPopup(popupContent).openPopup();
-
-            d3.csv("to_eu16-23/to_greece2016.csv").then(function(data) {
-                createVisualization("#popup-chart-greece", data, "By land", "By sea");
-            });
-        });
-    }
-
-    function bulgariaVisualization(coordinate) {
-        var greeceMarker = L.circleMarker([coordinate.lat, coordinate.lon], {
-            color: 'green',
-            fillColor: 'green',
-            fillOpacity: 0.5,
-            radius: 20
-        }).addTo(map);
-
-        greeceMarker.on('click', function() {
-            var popupContent = '<div id="popup-chart-bulgaria" style="width: 200px; height: 200px;"></div>';
-            var popup = greeceMarker.bindPopup(popupContent).openPopup();
-
-            d3.csv("to_eu16-23/to_bulgaria16.csv").then(function(data) {
-                createVisualization("#popup-chart-bulgaria", data, "By land", "By sea");
-            });
-        });
-    }
-
-    function hungaryVisualization(coordinate) {
-        var greeceMarker = L.circleMarker([coordinate.lat, coordinate.lon], {
-            color: 'green',
-            fillColor: 'green',
-            fillOpacity: 0.5,
-            radius: 20
-        }).addTo(map);
-
-        greeceMarker.on('click', function() {
-            var popupContent = '<div id="popup-chart-hungary" style="width: 200px; height: 200px;"></div>';
-            var popup = greeceMarker.bindPopup(popupContent).openPopup();
-
-            d3.csv("to_eu16-23/to_hungary16.csv").then(function(data) {
-                createVisualization("#popup-chart-hunagry", data, "By land", "By sea");
-            });
-        });
-    }
-
-    function albaniaVisualization(coordinate) {
-        var greeceMarker = L.circleMarker([coordinate.lat, coordinate.lon], {
-            color: 'orange',
-            fillColor: 'orange',
-            fillOpacity: 0.5,
-            radius: 20
-        }).addTo(map);
-
-        greeceMarker.on('click', function() {
-            var popupContent = '<div id="popup-chart-albania" style="width: 200px; height: 200px;"></div>';
-            var popup = greeceMarker.bindPopup(popupContent).openPopup();
-
-            d3.csv("to_eu16-23/to_albania16.csv").then(function(data) {
-                createVisualization("#popup-chart-albania", data, "By land", "By sea");
-            });
-        });
-    }
-
-    function maltaVisualization(coordinate) {
-        var greeceMarker = L.circleMarker([coordinate.lat, coordinate.lon], {
-            color: 'orange',
-            fillColor: 'orange',
-            fillOpacity: 0.5,
-            radius: 20
-        }).addTo(map);
-
-        greeceMarker.on('click', function() {
-            var popupContent = '<div id="popup-chart-malta" style="width: 200px; height: 200px;"></div>';
-            var popup = greeceMarker.bindPopup(popupContent).openPopup();
-
-            d3.csv("to_eu16-23/to_malta16.csv").then(function(data) {
-                createVisualization("#popup-chart-malta", data, "By land", "By sea");
-            });
-        });
-    }
-
-    function kosovoVisualization(coordinate) {
-        var greeceMarker = L.circleMarker([coordinate.lat, coordinate.lon], {
-            color: 'orange',
-            fillColor: 'orange',
-            fillOpacity: 0.5,
-            radius: 20
-        }).addTo(map);
-
-        greeceMarker.on('click', function() {
-            var popupContent = '<div id="popup-chart-kosovo" style="width: 200px; height: 200px;"></div>';
-            var popup = greeceMarker.bindPopup(popupContent).openPopup();
-
-            d3.csv("to_eu16-23/to_kosovo16.csv").then(function(data) {
-                createVisualization("#popup-chart-kosovo", data, "By land", "By sea");
-            });
-        });
-    }
-
-    function montenegroVisualization(coordinate) {
-        var greeceMarker = L.circleMarker([coordinate.lat, coordinate.lon], {
-            color: 'orange',
-            fillColor: 'orange',
-            fillOpacity: 0.5,
-            radius: 20
-        }).addTo(map);
-
-        greeceMarker.on('click', function() {
-            var popupContent = '<div id="popup-chart-montenegro" style="width: 200px; height: 200px;"></div>';
-            var popup = greeceMarker.bindPopup(popupContent).openPopup();
-
-            d3.csv("to_eu16-23/to_montenegro16.csv").then(function(data) {
-                createVisualization("#popup-chart-montenegro", data, "By land", "By sea");
-            });
-        });
-    }
+    }  
 
     function createVisualization(containerSelector, data, line1Label, line2Label) {
         let w = 200;
@@ -527,14 +401,14 @@ function init() {
                                         radius: 4
                                     }).addTo(map);
 
-                                    if (countryVisualizations[key]) {
-                                        countryVisualizations[key](regionCoordinates[i]);
+                                    if (visualizeYear[key]) {
+                                        visualizeYear[key](regionCoordinates[i]);
                                     }
                                 }
                             }
                         }
-                    })
-                    .catch(error => console.error('Error fetching coordinates:', error));
+                    })           
+
             } else {
                 // Clear the map when a different year is selected
                 map.eachLayer(function (layer) {
@@ -542,9 +416,15 @@ function init() {
                         map.removeLayer(layer);
                     }
                 });
+
+                // Hide all month items for other years
+                monthItems.forEach(function (monthItem) {
+                    monthItem.style.display = 'none';
+                });
             }
         });
     });
+
 
     function clearMapData() {
         // Remove all markers and circle markers from the map
@@ -566,6 +446,30 @@ function init() {
     if (defaultYearItem) {
         defaultYearItem.classList.add('active');
     }
+
+    // Add click event listener to the year item for 2016
+    var year2016Item = document.querySelector('.year-item[data-year="2016"]');
+    year2016Item.addEventListener('click', function () {
+        // Remove the "active" class from all year items
+        yearItems.forEach(function (item) {
+            item.classList.remove('active');
+        });
+    
+        // Add the "active" class to the clicked year item
+        year2016Item.classList.add('active');
+    
+        // Clear existing map data
+        clearMapData();
+    
+        // Load data for the year 2016
+        visualizeYear(2016);
+    
+        // Hide all month items for other years
+        monthItems.forEach(function (monthItem) {
+            monthItem.style.display = 'none';
+        });
+    });
+
 
     // Show or hide month items based on the default year
     var monthItems = document.querySelectorAll('.month-item');
