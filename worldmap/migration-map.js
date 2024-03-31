@@ -29,8 +29,40 @@ function init() {
     function visualizeCountry(countryCode, year) {
         console.log("Visualizing country:", countryCode, "for year:", year);
         const csvFile = `to_${countryCode}${year}.csv`;
-        const markerColor = countryCode === 'bulgaria' || countryCode === 'hungary' ? 'green' : 'orange';
         const popupId = `popup-chart-${countryCode}`;
+        let markerColor;
+
+        switch (countryCode) {
+            case 'spain':
+                markerColor = getColorForYear(year, 'gray', 'green', 'green', 'orange');
+                break;
+            case 'italy':
+                markerColor = getColorForYear(year, 'gray', 'purple', 'pink', 'brown');
+                break;
+            case 'greece':
+                markerColor = getColorForYear(year, 'gray', 'darkblue', 'navy', 'aqua');
+                break;
+            case 'bulgaria':
+                markerColor = getColorForYear(year, 'gray', 'lime', 'olive', 'teal');
+                break;
+            case 'hungary':
+                markerColor = getColorForYear(year, 'gray', 'coral', 'tomato', 'salmon');
+                break;
+            case 'albania':
+                markerColor = getColorForYear(year, 'gray', 'crimson', 'maroon', 'firebrick');
+                break;
+            case 'malta':
+                markerColor = getColorForYear(year, 'gray', 'indigo', 'violet', 'plum');
+                break;
+            case 'kosovo':
+                markerColor = getColorForYear(year, 'gray', 'gold', 'goldenrod', 'khaki');
+                break;
+            case 'montenegro':
+                markerColor = getColorForYear(year, 'gray', 'lime', 'olive', 'teal');
+                break;
+            default:
+                markerColor = 'black'; // Default color if no country code is matched
+        }
     
         // Fetch the coordinates for the current country from arrival_coor.json
         fetch('coordinates/chart_coor.json')
@@ -47,7 +79,7 @@ function init() {
                         radius: 20
                     }).addTo(map);
     
-                    const dataUrl = `to_eu16-23/${csvFile}`;
+                    const dataUrl = `to_eu16-23/${year}/${csvFile}`;
     
                     marker.on('click', function() {
                         var popupContent = `<div id="${popupId}" style="width: 200px; height: 200px;"></div>`;
@@ -66,6 +98,29 @@ function init() {
             });
     }  
 
+    function getColorForYear(year, color2016, color2017, color2018, color2019, color2020, color2021, color2022, color2023) {
+        switch (year) {
+            case 2016:
+                return color2016;
+            case 2017:
+                return color2017;
+            case 2018:
+                return color2018;
+            case 2019:
+                return color2019;
+            case 2020:
+                return color2020;
+            case 2021:
+                return color2021;
+            case 2022:
+                return color2022;
+            case 2023:
+                return color2023;
+            default:
+                return 'black'; 
+        }
+    }
+
     function createVisualization(containerSelector, data, line1Label, line2Label) {
         let w = 200;
         let h = 200;
@@ -80,7 +135,8 @@ function init() {
 
         let y = d3.scaleLinear()
             .domain([0, d3.max(data, d => Math.max(d['by land'], d['by sea']))])
-            .range([height, 0]);
+            .range([height, 0])
+            .nice();
 
         let xAxis = d3.axisBottom(x)
             .ticks(12)
@@ -228,7 +284,7 @@ function init() {
                     color: 'blue', // Color of the route line
                     weight: 1,     // Thickness of the route line
                     opacity: 0.5,
-                    dashArray: '5, 7 ',
+                    dashArray: '5, 7',
                 };
                 }
             }).addTo(map); // Assuming 'map' is your Leaflet map object
@@ -240,47 +296,47 @@ function init() {
             console.error('Error loading route data:', error);
         });
 
-        fetch('coordinates/arr_spain.json')
-            .then(response => response.json())
-            .then(coordinates => {
-                // Iterate through coordinates and add orange scatter plots
-                for (const key in coordinates) {
-                    if (coordinates.hasOwnProperty(key)) {
-                        const regionCoordinates = coordinates[key];
+    fetch('coordinates/arr_spain.json')
+        .then(response => response.json())
+        .then(coordinates => {
+            // Iterate through coordinates and add orange scatter plots
+            for (const key in coordinates) {
+                if (coordinates.hasOwnProperty(key)) {
+                    const regionCoordinates = coordinates[key];
 
-                        for (let i = 0; i < regionCoordinates.length; i++) {
-                            var orangeMarker = L.circleMarker([regionCoordinates[i].lat, regionCoordinates[i].lon], {
-                                color: 'blue',
-                                fillColor: 'blue',
-                                fillOpacity: 1,
-                                radius: 3
-                            }).addTo(map);
-                        }
+                    for (let i = 0; i < regionCoordinates.length; i++) {
+                        var orangeMarker = L.circleMarker([regionCoordinates[i].lat, regionCoordinates[i].lon], {
+                            color: 'blue',
+                            fillColor: 'blue',
+                            fillOpacity: 1,
+                            radius: 4
+                        }).addTo(map);
                     }
                 }
-            })
-            .catch(error => console.error('Error fetching coordinates:', error));
+            }
+        })
+        .catch(error => console.error('Error fetching coordinates:', error));
 
-        fetch('coordinates/departure_coordinates.json')
-            .then(response => response.json())
-            .then(coordinates => {
-                // Iterate through coordinates and add orange scatter plots
-                for (const key in coordinates) {
-                    if (coordinates.hasOwnProperty(key)) {
-                        const regionCoordinates = coordinates[key];
+    fetch('coordinates/departure_coordinates.json')
+        .then(response => response.json())
+        .then(coordinates => {
+            // Iterate through coordinates and add orange scatter plots
+            for (const key in coordinates) {
+                if (coordinates.hasOwnProperty(key)) {
+                    const regionCoordinates = coordinates[key];
 
-                        for (let i = 0; i < regionCoordinates.length; i++) {
-                            var orangeMarker = L.circleMarker([regionCoordinates[i].lat, regionCoordinates[i].lon], {
-                                color: 'orange',
-                                fillColor: 'orange',
-                                fillOpacity: 1,
-                                radius: 3
-                            }).addTo(map);
-                        }
+                    for (let i = 0; i < regionCoordinates.length; i++) {
+                        var orangeMarker = L.circleMarker([regionCoordinates[i].lat, regionCoordinates[i].lon], {
+                            color: 'orange',
+                            fillColor: 'orange',
+                            fillOpacity: 1,
+                            radius: 3
+                        }).addTo(map);
                     }
                 }
-            })
-            .catch(error => console.error('Error fetching coordinates:', error));
+            }
+        })
+        .catch(error => console.error('Error fetching coordinates:', error));
     
 
     // Tile type: openstreetmap Hot
@@ -311,7 +367,8 @@ function init() {
         maxZoom: 6
     }).addTo(map);
 
-
+    // Initialize with openstreetmap
+    openstreetmap.addTo(map); 
 
     fetch('coordinates/spain.geojson')
         .then(response => response.json())
@@ -351,11 +408,6 @@ function init() {
         })
         .catch(error => console.error('Error loading GeoJSON data:', error));
 
-        
-    
-
-    // Initialize with openstreetmap
-    openstreetmap.addTo(map); 
     
     // Get all year items
     var yearItems = document.querySelectorAll('.year-item');
@@ -377,20 +429,21 @@ function init() {
             // Clear existing map data
             clearMapData();
 
-            // Only load coordinates and show visualizations for the year 2016
-            if (selectedYear === '2016') {
-                // Show or hide month items based on the selected year
-                monthItems.forEach(function (monthItem) {
-                    var itemYear = monthItem.getAttribute('data-year');
-                    if (itemYear === selectedYear) {
-                        monthItem.style.display = 'inline-block';
-                    } else {
-                        monthItem.style.display = 'none';
-                    }
-                });
+            // Show or hide month items based on the selected year
+            monthItems.forEach(function (monthItem) {
+                var itemYear = monthItem.getAttribute('data-year');
+                if (itemYear === selectedYear) {
+                    monthItem.style.display = 'inline-block';
+                } else {
+                    monthItem.style.display = 'none';
+                }
+            });
 
-                // Fetch coordinates from departure_coordinates.json file
-                fetch('coordinates/departure_coordinates.json')
+            // Define the range of years you want to handle
+            const yearRange = [2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023];
+
+            // Fetch coordinates from departure_coordinates.json file
+            fetch('coordinates/departure_coordinates.json')
                 .then(response => response.json())
                 .then(coordinates => {
                     // Iterate through coordinates and add orange scatter plots
@@ -411,29 +464,31 @@ function init() {
                 })
                 .catch(error => console.error('Error fetching coordinates:', error));
 
-                fetch('coordinates/chart_coor.json')
-                    .then(response => response.json())
-                    .then(coordinates => {
-                        for (const key in coordinates) {
-                            if (coordinates.hasOwnProperty(key)) {
-                                const regionCoordinates = coordinates[key];
+            fetch('coordinates/arr_spain.json')
+                .then(response => response.json())
+                .then(coordinates => {
+                    // Iterate through coordinates and add orange scatter plots
+                    for (const key in coordinates) {
+                        if (coordinates.hasOwnProperty(key)) {
+                            const regionCoordinates = coordinates[key];
 
-                                for (let i = 0; i < regionCoordinates.length; i++) {
-                                    var marker = L.circleMarker([regionCoordinates[i].lat, regionCoordinates[i].lon], {
-                                        color: 'blue',
-                                        fillColor: 'blue',
-                                        fillOpacity: 0.7,
-                                        radius: 4
-                                    }).addTo(map);
-
-                                    if (visualizeYear[key]) {
-                                        visualizeYear[key](regionCoordinates[i]);
-                                    }
-                                }
+                            for (let i = 0; i < regionCoordinates.length; i++) {
+                                var orangeMarker = L.circleMarker([regionCoordinates[i].lat, regionCoordinates[i].lon], {
+                                    color: 'blue',
+                                    fillColor: 'blue',
+                                    fillOpacity: 1,
+                                    radius: 4
+                                }).addTo(map);
                             }
                         }
-                    })           
+                    }
+                })
+                .catch(error => console.error('Error fetching coordinates:', error));
 
+            // Perform actions based on the selected year
+            if (yearRange.includes(parseInt(selectedYear))) {
+                // Load coordinates and visualizations for the selected year
+                loadCoordinatesAndVisualizations(selectedYear);
             } else {
                 // Clear the map when a different year is selected
                 map.eachLayer(function (layer) {
@@ -441,14 +496,14 @@ function init() {
                         map.removeLayer(layer);
                     }
                 });
-
-                // Hide all month items for other years
-                monthItems.forEach(function (monthItem) {
-                    monthItem.style.display = 'none';
-                });
             }
         });
     });
+
+    function loadCoordinatesAndVisualizations(selectedYear) {
+        // Call the visualizeYear function for the selected year
+        visualizeYear(selectedYear);
+    }
 
 
     function clearMapData() {
