@@ -189,7 +189,6 @@ function init() {
                     const marker = L.circleMarker([coordinate.lat, coordinate.lon], {
                         color: markerColor,
                         fillColor: markerColor,
-                        
                         fillOpacity: 0.5,
                         radius: 20
                     }).addTo(map);
@@ -490,10 +489,29 @@ function init() {
     // Initialize with openstreetmap
     openstreetmap.addTo(map); 
 
-    fetch('coordinates/spain.geojson')
-        .then(response => response.json())
-        .then(geojson => {
-            const Tooltip = d3.select("body")
+    function loadGeoJSONFiles(filePaths) {
+    // Create a Promise for each file
+    const promises = filePaths.map(filePath => {
+        return fetch(filePath)
+            .then(response => response.json())
+            .catch(error => {
+                console.error('Error loading GeoJSON data:', error);
+                throw error;
+            });
+    });
+
+    // Wait for all promises to resolve
+    return Promise.all(promises)
+        .then(geojsonArray => {
+            geojsonArray.forEach((geojson, index) => {
+                // Process each GeoJSON data
+                processGeoJSON(geojson, index);
+            });
+        });
+    }
+
+    function processGeoJSON(geojson, index) {
+        const Tooltip = d3.select("body")
             .append("div")
             .style("position", "absolute")
             .style("opacity", 0)
@@ -504,37 +522,43 @@ function init() {
             .style("border-radius", "5px")
             .style("padding", "5px");
 
-            const defaultStyle = {
-            fillColor: 'lightgray',
+        const defaultStyle = {
+            fillColor: 'rgb(136, 255, 128)',
             fillOpacity: 0.5,
-            color: 'black',
+            color: 'none',
             weight: 2
-            };
+        };
 
-            const highlightStyle = {
-            fillColor: 'darkgray',
+        const highlightStyle = {
+            fillColor: 'orange',
             fillOpacity: 0.8,
-            color: 'black',
+            color: 'orange',
             weight: 3
-            };
+        };
 
-            const geoJsonLayer = L.geoJSON(geojson, {
+        const geoJsonLayer = L.geoJSON(geojson, {
             style: defaultStyle,
             onEachFeature: (feature, layer) => {
                 layer.on('mouseover', () => {
-                layer.setStyle(highlightStyle);
-                Tooltip.style("opacity", 1);
+                    layer.setStyle(highlightStyle);
+                    Tooltip.html("The exact value of<br>this cell is: " + feature.properties.value)
+                        .style("left", (d3.event.pageX + 70) + "px")
+                        .style("top", (d3.event.pageY) + "px")
+                        .style("opacity", 1);
                 });
 
                 layer.on('mouseout', () => {
-                layer.setStyle(defaultStyle);
-                Tooltip.style("opacity", 0);
+                    layer.setStyle(defaultStyle);
+                    Tooltip.style("opacity", 0);
                 });
             }
-            }).addTo(map);
-        })
-        .catch(error => console.error('Error loading GeoJSON data:', error));
+        }).addTo(map);
+    }
 
+    const filePaths = ['coordinates/spain.geojson', 'coordinates/italy.geojson', 'coordinates/albania.geojson', 'coordinates/greece.geojson', 'coordinates/montenegro.geojson', 'coordinates/kosovo.geojson', 'coordinates/hungary.geojson', 'coordinates/bulgaria.geojson', 'coordinates/malta.geojson'];
+    loadGeoJSONFiles(filePaths)
+        .then(() => console.log('All GeoJSON files loaded and processed'))
+        .catch(error => console.error('Error loading GeoJSON files:', error));
     
     // Get all year items
     var yearItems = document.querySelectorAll('.year-item');
