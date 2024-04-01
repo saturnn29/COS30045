@@ -10,9 +10,112 @@ function init() {
         maxZoom: 18
     })
 
+    L.Popup.prototype.options.className = 'custom-popup';
+
     const countryCodes = ['spain', 'italy', 'greece', 'bulgaria', 'hungary', 'albania', 'malta', 'kosovo', 'montenegro'];
 
     const yearRange = [2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023];
+
+    // Create a container for the legend on the map
+    var legendContainer = L.control({position: 'bottomright'});
+
+    legendContainer.onAdd = function (map) {
+        var div = L.DomUtil.create('div', 'legend-container');
+        return div;
+    };
+
+    legendContainer.addTo(map);
+
+    d3.select(".legend-container")
+        .append("svg")
+        .attr("width", 250)
+        .attr("height", 110)
+        .append("rect")
+        .attr("x", 0)
+        .attr("y", 0)
+        .attr("width", 250)
+        .attr("height", 110)
+        .attr("rx", 15)  
+        .attr("ry", 15)
+        .style("fill", "white");
+    
+    d3.select(".legend-container svg")
+        .append("text")
+        .attr("x", 23) 
+        .attr("y", 15) 
+        .text("Migration Trends:")
+        .style("font-size", "15px");
+
+    d3.select(".legend-container svg")
+        .append("circle")
+        .attr("cx", 30) 
+        .attr("cy", 30) 
+        .attr("r", 5) 
+        .style("fill", "blue");
+
+    d3.select(".legend-container svg")
+        .append("text")
+        .attr("x", 50) 
+        .attr("y", 35) 
+        .text("Arrival Point")
+        .style("font-size", "12px");
+
+    d3.select(".legend-container svg")
+        .append("circle")
+        .attr("cx", 30) 
+        .attr("cy", 45) 
+        .attr("r", 5) 
+        .style("fill", "red");
+
+    d3.select(".legend-container svg")
+        .append("text")
+        .attr("x", 50)
+        .attr("y", 50) 
+        .text("Departure Point")
+        .style("font-size", "12px");
+
+    d3.select(".legend-container svg")
+        .append("circle")
+        .attr("cx", 30) 
+        .attr("cy", 60) 
+        .attr("r", 5) 
+        .style("fill", "grey");
+
+    d3.select(".legend-container svg")
+        .append("text")
+        .attr("x", 50)
+        .attr("y", 65) 
+        .text("Not Changed")
+        .style("font-size", "12px");
+
+    d3.select(".legend-container svg")
+        .append("circle")
+        .attr("cx", 30) 
+        .attr("cy", 75) 
+        .attr("r", 5) 
+        .style("fill", "orange");
+
+    d3.select(".legend-container svg")
+        .append("text")
+        .attr("x", 50)
+        .attr("y", 80) 
+        .text("Decrease")
+        .style("font-size", "12px");
+
+    d3.select(".legend-container svg")
+        .append("circle")
+        .attr("cx", 30) 
+        .attr("cy", 90) 
+        .attr("r", 5) 
+        .style("fill", "green");
+
+    d3.select(".legend-container svg")
+        .append("text")
+        .attr("x", 50)
+        .attr("y", 95   ) 
+        .text("Increase")
+        .style("font-size", "12px");
+
 
     // Visualize for each year in the range
     for (let year = yearRange[0]; year <= yearRange[1]; year++) {
@@ -31,36 +134,47 @@ function init() {
         const csvFile = `to_${countryCode}${year}.csv`;
         const popupId = `popup-chart-${countryCode}`;
         let markerColor;
+        let countryName;
 
         switch (countryCode) {
             case 'spain':
-                markerColor = getColorForYear(year, 'gray', 'green', 'green', 'orange');
+                countryName = 'Spain';
+                markerColor = getColorForYear(year, "gray", "orange", "orange", "green", "green", "orange", "green", "orange");
                 break;
             case 'italy':
-                markerColor = getColorForYear(year, 'gray', 'purple', 'pink', 'brown');
+                countryName = 'Italy';
+                markerColor = getColorForYear(year, 'gray', 'orange', 'green', 'orange', 'orange', 'orange', 'green', 'green');
                 break;
             case 'greece':
-                markerColor = getColorForYear(year, 'gray', 'darkblue', 'navy', 'aqua');
+                countryName = 'Greece';
+                markerColor = getColorForYear(year, 'gray', 'green', 'orange', 'green', 'green', 'green', 'green', 'green');
                 break;
             case 'bulgaria':
-                markerColor = getColorForYear(year, 'gray', 'lime', 'olive', 'teal');
+                countryName = 'Bulgaria';
+                markerColor = getColorForYear(year, 'gray', 'green', 'green', 'green', 'green', 'green', 'orange', 'orange');
                 break;
             case 'hungary':
-                markerColor = getColorForYear(year, 'gray', 'coral', 'tomato', 'salmon');
+                countryName = 'Hungary';
+                markerColor = getColorForYear(year, 'gray', 'orange', 'green', 'orange', 'green', 'green', 'green', 'green');
                 break;
             case 'albania':
-                markerColor = getColorForYear(year, 'gray', 'crimson', 'maroon', 'firebrick');
+                countryName = 'Albania';
+                markerColor = getColorForYear(year, 'gray', 'orange', 'green', 'orange', 'orange', 'orange', 'orange', 'green');
                 break;
             case 'malta':
-                markerColor = getColorForYear(year, 'gray', 'indigo', 'violet', 'plum');
+                countryName = 'Malta';
+                markerColor = getColorForYear(year, 'gray', 'orange', 'orange', 'green', 'orange', 'green', 'green', 'green');
                 break;
             case 'kosovo':
-                markerColor = getColorForYear(year, 'gray', 'gold', 'goldenrod', 'khaki');
+                countryName = 'Kosovo';
+                markerColor = getColorForYear(year, 'gray', 'orange', 'green', 'orange', 'green', 'orange', 'green', 'green');
                 break;
             case 'montenegro':
-                markerColor = getColorForYear(year, 'gray', 'lime', 'olive', 'teal');
+                countryName = 'Montenegro';
+                markerColor = getColorForYear(year, 'gray', 'green', 'orange', 'green', 'green', 'green', 'green', 'green');
                 break;
             default:
+                countryName = 'Unknown';
                 markerColor = 'black'; // Default color if no country code is matched
         }
     
@@ -75,14 +189,15 @@ function init() {
                     const marker = L.circleMarker([coordinate.lat, coordinate.lon], {
                         color: markerColor,
                         fillColor: markerColor,
+                        
                         fillOpacity: 0.5,
                         radius: 20
                     }).addTo(map);
-    
+
                     const dataUrl = `to_eu16-23/${year}/${csvFile}`;
     
                     marker.on('click', function() {
-                        var popupContent = `<div id="${popupId}" style="width: 200px; height: 200px;"></div>`;
+                        var popupContent = `<div><h3>${countryName}</h3><div id="${popupId}" style="width: 300px; height: 300px;"></div></div>`;
                         var popup = marker.bindPopup(popupContent).openPopup();
     
                         console.log("Fetching data from URL:", dataUrl);
@@ -100,32 +215,33 @@ function init() {
 
     function getColorForYear(year, color2016, color2017, color2018, color2019, color2020, color2021, color2022, color2023) {
         switch (year) {
-            case 2016:
+            case '2016':
                 return color2016;
-            case 2017:
+            case '2017':
                 return color2017;
-            case 2018:
+            case '2018':
                 return color2018;
-            case 2019:
+            case '2019':
                 return color2019;
-            case 2020:
+            case '2020':
                 return color2020;
-            case 2021:
+            case '2021':
                 return color2021;
-            case 2022:
+            case '2022':
                 return color2022;
-            case 2023:
+            case '2023':
                 return color2023;
             default:
-                return 'black'; 
+                return color2016; 
         }
     }
+    
 
-    function createVisualization(containerSelector, data, line1Label, line2Label) {
-        let w = 200;
-        let h = 200;
+    function createVisualization(containerSelector, data, line1Label, line2Label ) {
+        let w = 270;
+        let h = 270;
 
-        let margin = { top: 20, right: 20, bottom: 30, left: 50 };
+        let margin = { top: 50, right: 50, bottom: 50, left: 80 };
         let width = w - margin.left - margin.right;
         let height = h - margin.top - margin.bottom;
 
@@ -144,6 +260,8 @@ function init() {
 
         let yAxis = d3.axisLeft(y);
 
+
+
         let svg = d3.select(containerSelector)
             .append("svg")
             .attr("width", w)
@@ -151,6 +269,8 @@ function init() {
             .append("g")
             .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
+
+            
         svg.append("g")
             .attr("class", "x axis")
             .attr("transform", `translate(0, ${height})`)
@@ -218,29 +338,29 @@ function init() {
 
         let legend = svg.append("g")
             .attr("class", "legend")
-            .attr("transform", `translate(${width - 100}, ${height - 100})`);
+            .attr("transform", `translate(${width - 120}, ${height - 120})`);
 
         legend.append("rect")
-            .attr("x", 0)
+            .attr("x", 118)
             .attr("y", 0)
             .attr("width", 10)
             .attr("height", 10)
             .style("fill", "steelblue");
 
         legend.append("text")
-            .attr("x", 15)
+            .attr("x", 130)
             .attr("y", 9)
             .text(line1Label);
 
         legend.append("rect")
-            .attr("x", 0)
+            .attr("x", 118)
             .attr("y", 20)
             .attr("width", 10)
             .attr("height", 10)
             .style("fill", "red");
 
         legend.append("text")
-            .attr("x", 15)
+            .attr("x", 130)
             .attr("y", 29)
             .text(line2Label);
     }
@@ -283,8 +403,8 @@ function init() {
                 return {
                     color: 'blue', // Color of the route line
                     weight: 1,     // Thickness of the route line
-                    opacity: 0.5,
-                    dashArray: '5, 7',
+                    opacity: 0.7,
+                    dashArray: '6, 7',
                 };
                 }
             }).addTo(map); // Assuming 'map' is your Leaflet map object
@@ -327,8 +447,8 @@ function init() {
 
                     for (let i = 0; i < regionCoordinates.length; i++) {
                         var orangeMarker = L.circleMarker([regionCoordinates[i].lat, regionCoordinates[i].lon], {
-                            color: 'orange',
-                            fillColor: 'orange',
+                            color: 'red',
+                            fillColor: 'red',
                             fillOpacity: 1,
                             radius: 3
                         }).addTo(map);
@@ -373,38 +493,45 @@ function init() {
     fetch('coordinates/spain.geojson')
         .then(response => response.json())
         .then(geojson => {
+            const Tooltip = d3.select("body")
+            .append("div")
+            .style("position", "absolute")
+            .style("opacity", 0)
+            .attr("class", "tooltip")
+            .style("background-color", "white")
+            .style("border", "solid")
+            .style("border-width", "2px")
+            .style("border-radius", "5px")
+            .style("padding", "5px");
+
+            const defaultStyle = {
+            fillColor: 'lightgray',
+            fillOpacity: 0.5,
+            color: 'black',
+            weight: 2
+            };
+
+            const highlightStyle = {
+            fillColor: 'darkgray',
+            fillOpacity: 0.8,
+            color: 'black',
+            weight: 3
+            };
+
             const geoJsonLayer = L.geoJSON(geojson, {
-                onEachFeature: (feature, layer) => {
-                    layer.on('mouseover', (event) => {
-                        layer.setStyle({ fillColor: 'red', fillOpacity: 0.5, color: 'red', weight: 2 });
-                        Tooltip.style("opacity", 1);
-                    });
-                    layer.on('mousemove', (event, d) => {
-                        Tooltip
-                        .html("This is Spain")
-                        .style("left", (d3.mouse(this)[0]+70) + "px")
-                        .style("top", (d3.mouse(this)[1]) + "px")
-                        .style("cursor", "default")
-                        .style("opacity", 0.9);
-                    });
-                    
-                    layer.on('mouseout', () => {
-                        layer.setStyle({ fillColor: 'none', fillOpacity: 0.5, color: 'none', weight: 2 });
-                        Tooltip.style("opacity", 0);
-                    });
-                }
+            style: defaultStyle,
+            onEachFeature: (feature, layer) => {
+                layer.on('mouseover', () => {
+                layer.setStyle(highlightStyle);
+                Tooltip.style("opacity", 1);
+                });
+
+                layer.on('mouseout', () => {
+                layer.setStyle(defaultStyle);
+                Tooltip.style("opacity", 0);
+                });
+            }
             }).addTo(map);
-    
-            // Append a tooltip div to the body
-            var Tooltip = d3.select("body")
-                .append("div")
-                .style("opacity", 0)
-                .attr("class", "tooltip")
-                .style("background-color", "white")
-                .style("border", "solid")
-                .style("border-width", "2px")
-                .style("border-radius", "5px")
-                .style("padding", "5px");
         })
         .catch(error => console.error('Error loading GeoJSON data:', error));
 
@@ -527,6 +654,9 @@ function init() {
         defaultYearItem.classList.add('active');
     }
 
+    // Load coordinates and visualizations for the default year
+    loadCoordinatesAndVisualizations(defaultYear);
+
     // Add click event listener to the year item for 2016
     var year2016Item = document.querySelector('.year-item[data-year="2016"]');
     year2016Item.addEventListener('click', function () {
@@ -542,14 +672,18 @@ function init() {
         clearMapData();
 
         // Load data for the year 2016
-        visualizeYear(2016);
+        loadCoordinatesAndVisualizations(2016);
 
         // Hide all month items for other years
         monthItems.forEach(function (monthItem) {
-            monthItem.style.display = 'none';
+            var itemYear = monthItem.getAttribute('data-year');
+            if (itemYear === '2016') {
+                monthItem.style.display = 'inline-block';
+            } else {
+                monthItem.style.display = 'none';
+            }
         });
     });
-
 
     // Show or hide month items based on the default year
     var monthItems = document.querySelectorAll('.month-item');
@@ -560,32 +694,6 @@ function init() {
         } else {
             monthItem.style.display = 'none';
         }
-    });
-
-    // Add click event listener to each year item
-    yearItems.forEach(function (yearItem) {
-        yearItem.addEventListener('click', function () {
-            // Remove the "active" class from all year items
-            yearItems.forEach(function (item) {
-                item.classList.remove('active');
-            });
-
-            // Add the "active" class to the clicked year item
-            yearItem.classList.add('active');
-
-            // Get the selected year from the data-year attribute
-            var selectedYear = yearItem.getAttribute('data-year');
-
-            // Show or hide month items based on the selected year
-            monthItems.forEach(function (monthItem) {
-                var itemYear = monthItem.getAttribute('data-year');
-                if (itemYear === selectedYear) {
-                    monthItem.style.display = 'inline-block';
-                } else {
-                    monthItem.style.display = 'none';
-                }
-            });
-        });
     });
 
 
@@ -616,7 +724,7 @@ function init() {
     const monthWrapper = document.querySelector('.month-wrapper.compact');
 
     if (monthWrapper) {
-        monthWrapper.addEventListener('mouseover', handleMonthHover);
+        monthWrapper.addEventListener('mousemove', handleMonthHover);
     }
 
     function handleMonthHover(event) {
