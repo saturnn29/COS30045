@@ -1,0 +1,58 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visualization Project Introduction</title>
+  <link rel="stylesheet" href="includes/style.css">
+</head>
+<body>
+  <header>
+    <h1>EU's Middle East Migration Crisis</h1>
+  </header>
+  <div id="navbarPlaceholder"></div>
+  <div class="content">
+    <main>
+      <h2>Introduction</h2>
+      <img src="eu_image.jpg" alt="EU Image" width="500">
+        <p>
+          This project aims to visually depict the Middle East migration crisis within the EU.<br/> 
+          Explore migrant distribution across EU countries and gain insight into this complex issue.</p>
+    </main>
+  </div>
+  <div id="footerPlaceholder"></div>
+
+  <script>
+    // Function to load navbar
+    function loadNavbar() {
+      fetch('includes/navbar.html')
+        .then(response => response.text())
+        .then(data => {
+          document.getElementById('navbarPlaceholder').innerHTML = data;
+        })
+        .catch(error => console.error('Error loading navbar:', error));
+    }
+
+    // Function to load footer
+    function loadFooter() {
+      fetch('includes/footer.html')
+        .then(response => response.text())
+        .then(data => {
+          document.getElementById('footerPlaceholder').innerHTML = data;
+        })
+        .catch(error => console.error('Error loading footer:', error));
+    }
+
+    // Call functions to load navbar and footer after DOM content is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      loadNavbar();
+      loadFooter();
+      
+      document.body.style.opacity = 1;
+
+    });
+  </script>
+</body>
+</html>

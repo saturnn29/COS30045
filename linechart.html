@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>D3 Bar Chart</title>
+
+    <script src="https://d3js.org/d3.v4.js"></script>
+    <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+    <link rel="stylesheet" href="includes/style.css">
+    <script src="linechart.js"></script>
+    <style>
+      .show {
+          visibility: visible !important;
+      }
+
+      .hide {
+          visibility: hidden !important;
+      }
+
+    </style>
+</head>
+<body> 
+    <header>
+      <h1>Line Chart</h1>
+    </header>
+    <div id="navbarPlaceholder"></div>
+    <div class="content">
+      <main>
+        <div class="linechart"></div>
+      </main>
+    </div>
+</body>
+<div id="footerPlaceholder"></div>
+<script>
+  // Function to load navbar
+  function loadNavbar() {
+    fetch('includes/navbar.html')
+      .then(response => response.text())
+      .then(data => {
+        document.getElementById('navbarPlaceholder').innerHTML = data;
+      })
+      .catch(error => console.error('Error loading navbar:', error));
+  }
+
+  // Function to load footer
+  function loadFooter() {
+    fetch('includes/footer.html')
+      .then(response => response.text())
+      .then(data => {
+        document.getElementById('footerPlaceholder').innerHTML = data;
+      })
+      .catch(error => console.error('Error loading footer:', error));
+  }
+
+  // Call functions to load navbar and footer after DOM content is loaded
+  document.addEventListener('DOMContentLoaded', function() {
+    loadNavbar();
+    loadFooter();
+    
+    document.body.style.opacity = 1;
+
+  });
+</script>
+</html>
