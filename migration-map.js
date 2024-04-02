@@ -16,6 +16,107 @@ function init() {
 
     const yearRange = [2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023];
 
+    // Create a container for the legend on the map
+    var legendContainer = L.control({position: 'bottomright'});
+
+    legendContainer.onAdd = function (map) {
+        var div = L.DomUtil.create('div', 'legend-container');
+        return div;
+    };
+
+    legendContainer.addTo(map);
+
+    d3.select(".legend-container")
+        .append("svg")
+        .attr("width", 250)
+        .attr("height", 110)
+        .append("rect")
+        .attr("x", 0)
+        .attr("y", 0)
+        .attr("width", 250)
+        .attr("height", 110)
+        .attr("rx", 15)  
+        .attr("ry", 15)
+        .style("fill", "white");
+    
+    d3.select(".legend-container svg")
+        .append("text")
+        .attr("x", 23) 
+        .attr("y", 15) 
+        .text("Migration Trends:")
+        .style("font-size", "15px");
+
+    d3.select(".legend-container svg")
+        .append("circle")
+        .attr("cx", 30) 
+        .attr("cy", 30) 
+        .attr("r", 5) 
+        .style("fill", "blue");
+
+    d3.select(".legend-container svg")
+        .append("text")
+        .attr("x", 50) 
+        .attr("y", 35) 
+        .text("Arrival Point")
+        .style("font-size", "12px");
+
+    d3.select(".legend-container svg")
+        .append("circle")
+        .attr("cx", 30) 
+        .attr("cy", 45) 
+        .attr("r", 5) 
+        .style("fill", "red");
+
+    d3.select(".legend-container svg")
+        .append("text")
+        .attr("x", 50)
+        .attr("y", 50) 
+        .text("Departure Point")
+        .style("font-size", "12px");
+
+    d3.select(".legend-container svg")
+        .append("circle")
+        .attr("cx", 30) 
+        .attr("cy", 60) 
+        .attr("r", 5) 
+        .style("fill", "grey");
+
+    d3.select(".legend-container svg")
+        .append("text")
+        .attr("x", 50)
+        .attr("y", 65) 
+        .text("Not Changed")
+        .style("font-size", "12px");
+
+    d3.select(".legend-container svg")
+        .append("circle")
+        .attr("cx", 30) 
+        .attr("cy", 75) 
+        .attr("r", 5) 
+        .style("fill", "orange");
+
+    d3.select(".legend-container svg")
+        .append("text")
+        .attr("x", 50)
+        .attr("y", 80) 
+        .text("Decrease")
+        .style("font-size", "12px");
+
+    d3.select(".legend-container svg")
+        .append("circle")
+        .attr("cx", 30) 
+        .attr("cy", 90) 
+        .attr("r", 5) 
+        .style("fill", "green");
+
+    d3.select(".legend-container svg")
+        .append("text")
+        .attr("x", 50)
+        .attr("y", 95   ) 
+        .text("Increase")
+        .style("font-size", "12px");
+
+
     // Visualize for each year in the range
     for (let year = yearRange[0]; year <= yearRange[1]; year++) {
         visualizeYear(year);
@@ -88,7 +189,6 @@ function init() {
                     const marker = L.circleMarker([coordinate.lat, coordinate.lon], {
                         color: markerColor,
                         fillColor: markerColor,
-                        
                         fillOpacity: 0.5,
                         radius: 20
                     }).addTo(map);
@@ -134,7 +234,6 @@ function init() {
                 return color2016; 
         }
     }
-    
 
     function createVisualization(containerSelector, data, line1Label, line2Label ) {
         let w = 270;
@@ -159,6 +258,8 @@ function init() {
 
         let yAxis = d3.axisLeft(y);
 
+
+
         let svg = d3.select(containerSelector)
             .append("svg")
             .attr("width", w)
@@ -166,6 +267,8 @@ function init() {
             .append("g")
             .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
+
+            
         svg.append("g")
             .attr("class", "x axis")
             .attr("transform", `translate(0, ${height})`)
@@ -298,8 +401,8 @@ function init() {
                 return {
                     color: 'blue', // Color of the route line
                     weight: 1,     // Thickness of the route line
-                    opacity: 0.5,
-                    dashArray: '5, 7',
+                    opacity: 0.7,
+                    dashArray: '6, 7',
                 };
                 }
             }).addTo(map); // Assuming 'map' is your Leaflet map object
@@ -342,8 +445,8 @@ function init() {
 
                     for (let i = 0; i < regionCoordinates.length; i++) {
                         var orangeMarker = L.circleMarker([regionCoordinates[i].lat, regionCoordinates[i].lon], {
-                            color: 'orange',
-                            fillColor: 'orange',
+                            color: 'red',
+                            fillColor: 'red',
                             fillOpacity: 1,
                             radius: 3
                         }).addTo(map);
@@ -385,9 +488,28 @@ function init() {
     // Initialize with openstreetmap
     openstreetmap.addTo(map); 
 
-    fetch('coordinates/spain.geojson')
-    .then(response => response.json())
-    .then(geojson => {
+    function loadGeoJSONFiles(filePaths) {
+    // Create a Promise for each file
+    const promises = filePaths.map(filePath => {
+        return fetch(filePath)
+            .then(response => response.json())
+            .catch(error => {
+                console.error('Error loading GeoJSON data:', error);
+                throw error;
+            });
+    });
+
+    // Wait for all promises to resolve
+    return Promise.all(promises)
+        .then(geojsonArray => {
+            geojsonArray.forEach((geojson, index) => {
+                // Process each GeoJSON data
+                processGeoJSON(geojson, index);
+            });
+        });
+    }
+
+    function processGeoJSON(geojson, index) {
         const Tooltip = d3.select("body")
             .append("div")
             .style("position", "absolute")
@@ -399,54 +521,41 @@ function init() {
             .style("border-radius", "5px")
             .style("padding", "5px");
 
-        const geoJsonLayer = L.geoJSON(geojson, {
+        const defaultStyle = {
+            fillColor: 'rgb(136, 255, 128)',
+            fillOpacity: 0.5,
+            color: 'none',
+            weight: 2
+        };
+
+        const highlightStyle = {
+            fillColor: 'orange',
+            fillOpacity: 0.8,
+            color: 'orange',
+            weight: 3
+        };
+
+        const geoJsonLayer = L.geoJSON(geojson, {   
+            style: defaultStyle,
             onEachFeature: (feature, layer) => {
-                let defaultStyle = {
-                    fillColor: 'none',
-                    fillOpacity: 0.5,
-                    color: 'none',
-                    weight: 2
-                };
-
-                layer.on('mouseover', (event) => {
-                    layer.setStyle({
-                        fillColor: 'darkgray',
-                        fillOpacity: 0.5,
-                        color: 'black',
-                        weight: 2
-                    });
-                    Tooltip.style("opacity", 1);
+                layer.on('mouseover', () => {
+                    layer.setStyle(highlightStyle);
+                    const countryName = feature.properties.name || 'Unknown';
+                    layer.bindTooltip(`<div class="country-tooltip"><strong>${countryName}</strong></div>`, { permanent: false, sticky: true, offset: [10, 0] }).openTooltip();
                 });
-
-                layer.on('mousemove', (event) => {
-                    const [x, y] = d3.pointer(event.originalEvent);
-                    layer.setStyle({
-                        fillColor: 'darkgray',
-                        fillOpacity: 0.5,
-                        color: 'black',
-                        weight: 2
-                    });
-                    Tooltip
-                        .html("This is Spain")
-                        .style("left", (x + 70) + "px")
-                        .style("top", (y) + "px")
-                        .style("cursor", "default")
-                        .style("opacity", 0.9);
-                });
-
+    
                 layer.on('mouseout', () => {
                     layer.setStyle(defaultStyle);
-                    Tooltip.style("opacity", 0);
-                });
-
-                layer.on('remove', () => {
-                    layer.off(); // Remove all event listeners
+                    layer.unbindTooltip();
                 });
             }
         }).addTo(map);
-    })
-    .catch(error => console.error('Error loading GeoJSON data:', error));
+    }
 
+    const filePaths = ['coordinates/spain.geojson', 'coordinates/italy.geojson', 'coordinates/albania.geojson', 'coordinates/greece.geojson', 'coordinates/montenegro.geojson', 'coordinates/kosovo.geojson', 'coordinates/hungary.geojson', 'coordinates/bulgaria.geojson', 'coordinates/malta.geojson'];
+    loadGeoJSONFiles(filePaths)
+        .then(() => console.log('All GeoJSON files loaded and processed'))
+        .catch(error => console.error('Error loading GeoJSON files:', error));
     
     // Get all year items
     var yearItems = document.querySelectorAll('.year-item');
@@ -636,7 +745,7 @@ function init() {
     const monthWrapper = document.querySelector('.month-wrapper.compact');
 
     if (monthWrapper) {
-        monthWrapper.addEventListener('mouseover', handleMonthHover);
+        monthWrapper.addEventListener('mousemove', handleMonthHover);
     }
 
     function handleMonthHover(event) {
