@@ -135,82 +135,85 @@ function init() {
         const popupId = `popup-chart-${countryCode}`;
         let markerColor;
         let countryName;
-
+        let prevYearTotal = 0; // Initialize with 0 for the first year
+    
         switch (countryCode) {
             case 'spain':
                 countryName = 'Spain';
-                markerColor = getColorForYear(year, "gray", "orange", "orange", "green", "green", "orange", "green", "orange");
                 break;
             case 'italy':
                 countryName = 'Italy';
-                markerColor = getColorForYear(year, 'gray', 'orange', 'green', 'orange', 'orange', 'orange', 'green', 'green');
                 break;
             case 'greece':
                 countryName = 'Greece';
-                markerColor = getColorForYear(year, 'gray', 'green', 'orange', 'green', 'green', 'green', 'green', 'green');
                 break;
             case 'bulgaria':
                 countryName = 'Bulgaria';
-                markerColor = getColorForYear(year, 'gray', 'green', 'green', 'green', 'green', 'green', 'orange', 'orange');
                 break;
             case 'hungary':
                 countryName = 'Hungary';
-                markerColor = getColorForYear(year, 'gray', 'orange', 'green', 'orange', 'green', 'green', 'green', 'green');
                 break;
             case 'albania':
                 countryName = 'Albania';
-                markerColor = getColorForYear(year, 'gray', 'orange', 'green', 'orange', 'orange', 'orange', 'orange', 'green');
                 break;
             case 'malta':
                 countryName = 'Malta';
-                markerColor = getColorForYear(year, 'gray', 'orange', 'orange', 'green', 'orange', 'green', 'green', 'green');
                 break;
             case 'kosovo':
                 countryName = 'Kosovo';
-                markerColor = getColorForYear(year, 'gray', 'orange', 'green', 'orange', 'green', 'orange', 'green', 'green');
                 break;
             case 'montenegro':
                 countryName = 'Montenegro';
-                markerColor = getColorForYear(year, 'gray', 'green', 'orange', 'green', 'green', 'green', 'green', 'green');
                 break;
             default:
                 countryName = 'Unknown';
-                markerColor = 'black'; // Default color if no country code is matched
         }
     
-        // Fetch the coordinates for the current country from arrival_coor.json
-        fetch('coordinates/chart_coor.json')
-            .then(response => response.json())
-            .then(coordinates => {
-                const countryCoordinates = coordinates[countryCode] || [];
+        const dataUrl = `to_eu16-23/${year}/${csvFile}`;
     
-                // Create a marker for each coordinate
-                countryCoordinates.forEach(coordinate => {
-                    const marker = L.circleMarker([coordinate.lat, coordinate.lon], {
-                        color: markerColor,
-                        fillColor: markerColor,
-                        fillOpacity: 0.5,
-                        radius: 20
-                    }).addTo(map);
-
-                    const dataUrl = `to_eu16-23/${year}/${csvFile}`;
+        d3.csv(dataUrl).then(function(data) {
+            const currentYearTotal = data.reduce((total, row) => total + parseInt(row['by land']) + parseInt(row['by sea']), 0);
     
-                    marker.on('click', function() {
-                        var popupContent = `<div><h3>${countryName}</h3><div id="${popupId}" style="width: 300px; height: 300px;"></div></div>`;
-                        var popup = marker.bindPopup(popupContent).openPopup();
+            if (year === yearRange[0]) {
+                markerColor = 'gray'; // Use gray color for the first year
+            } else {
+                markerColor = currentYearTotal > prevYearTotal ? 'green' : 'orange';
+            }
     
-                        console.log("Fetching data from URL:", dataUrl);
+            prevYearTotal = currentYearTotal; // Update prevYearTotal for the next year
     
-                        d3.csv(dataUrl).then(function(data) {
+            // Fetch the coordinates for the current country from arrival_coor.json
+            fetch('coordinates/chart_coor.json')
+                .then(response => response.json())
+                .then(coordinates => {
+                    const countryCoordinates = coordinates[countryCode] || [];
+    
+                    // Create a marker for each coordinate
+                    countryCoordinates.forEach(coordinate => {
+                        const marker = L.circleMarker([coordinate.lat, coordinate.lon], {
+                            color: markerColor,
+                            fillColor: markerColor,
+                            fillOpacity: 0.5,
+                            radius: 20
+                        }).addTo(map);
+    
+                        marker.on('click', function() {
+                            var popupContent = `<div><h3>${countryName}</h3><div id="${popupId}" style="width: 300px; height: 300px;"></div></div>`;
+                            var popup = marker.bindPopup(popupContent).openPopup();
+    
+                            console.log("Fetching data from URL:", dataUrl);
+    
                             createVisualization(`#${popupId}`, data, "By land", "By sea");
                         });
                     });
+                })
+                .catch(error => {
+                    console.error('Error fetching coordinates:', error);
                 });
-            })
-            .catch(error => {
-                console.error('Error fetching coordinates:', error);
-            });
-    }  
+        }).catch(error => {
+            console.error('Error fetching CSV data:', error);
+        });
+    } 
 
     function getColorForYear(year, color2016, color2017, color2018, color2019, color2020, color2021, color2022, color2023) {
         switch (year) {
@@ -520,28 +523,29 @@ function init() {
             .style("border-width", "2px")
             .style("border-radius", "5px")
             .style("padding", "5px");
-
+    
         const defaultStyle = {
             fillColor: 'rgb(136, 255, 128)',
             fillOpacity: 0.5,
             color: 'none',
             weight: 2
         };
-
+    
         const highlightStyle = {
             fillColor: 'orange',
             fillOpacity: 0.8,
             color: 'orange',
             weight: 3
         };
-
+    
         const geoJsonLayer = L.geoJSON(geojson, {   
             style: defaultStyle,
             onEachFeature: (feature, layer) => {
                 layer.on('mouseover', () => {
                     layer.setStyle(highlightStyle);
                     const countryName = feature.properties.name || 'Unknown';
-                    layer.bindTooltip(`<div class="country-tooltip"><strong>${countryName}</strong></div>`, { permanent: false, sticky: true, offset: [10, 0] }).openTooltip();
+                    const countryFlag = feature.properties.flag || '';
+                    layer.bindTooltip(`<div class="country-tooltip"><strong>${countryName} ${countryFlag}</strong></div>`, { permanent: false, sticky: true, offset: [10, 0] }).openTooltip();
                 });
     
                 layer.on('mouseout', () => {
@@ -550,7 +554,7 @@ function init() {
                 });
             }
         }).addTo(map);
-    }
+    }    
 
     const filePaths = ['coordinates/spain.geojson', 'coordinates/italy.geojson', 'coordinates/albania.geojson', 'coordinates/greece.geojson', 'coordinates/montenegro.geojson', 'coordinates/kosovo.geojson', 'coordinates/hungary.geojson', 'coordinates/bulgaria.geojson', 'coordinates/malta.geojson'];
     loadGeoJSONFiles(filePaths)
