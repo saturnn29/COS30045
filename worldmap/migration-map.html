@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8"/>
+        <meta name="description" content="Data Visualization"/>
+        <meta name="keywords" content="World Map"/>
+        <meta name="author" content="Tran Hoang Duy Linh"/>
+        
+        <title>World Map</title>
+        <!-- Load Leaflet -->
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.4/dist/leaflet.css" integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA==" crossorigin=""/>
+        <script src="https://unpkg.com/leaflet@1.3.4/dist/leaflet.js" integrity="sha512-nMMmRyTVoLYqjP9hrbed9S+FzjZHW5gY1TWCHA5ckwXZBadntCNs8kEqAWdrb9O7rxbCaA4lKTIWjDXZxflOcA==" crossorigin=""></script>
+        <script src="https://d3js.org/d3.v7.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <link rel="stylesheet" href="style.css"/>
+        <script src="migration-map.js"></script>
+    </head>
+    <body>
+        <!-- Create an element where the map will take place -->
+        <div id="mapid" style="width: 900px; height: 800px;"></div>
+        <div class="tooltip"></div>
+        <div id="rectangle"></div> <!-- Add this line for the rectangle -->  
+        <div id="chart"></div>  
+
+        <div class="timeline-wrapper drill-year-wrapper" style="display: block">
+            <div class="day-scroller">
+                <div class="day-wrapper" data-total-days-width="1141.124199999999">
+                    <div class="day-item" data-year="2016" data-month="1" data-day="1" data-total="509">
+                        <div class="day">1</div>
+                        <div class="figure">509</div>
+                    </div>
+                    <div class="day-item" data-year="2016" data-month="1" data-day="2" data-total="509">
+                        <div class="day">2</div>
+                        <div class="figure">2028</div>
+                    </div>
+                    <div class="day-item" data-year="2016" data-month="1" data-day="3" data-total="509">
+                        <div class="day">3</div>
+                        <div class="figure">2611</div>
+                    </div>
+                    <div class="day-item" data-year="2016" data-month="1" data-day="4" data-total="509">
+                        <div class="day">4</div>
+                        <div class="figure">2658</div>
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="year-scroller">
+                <div class="year-wrapper compact" style="display: block;">
+                    <div class="reset-wrapper hidden-sm hidden-xs"></div>
+                    <div class="year-item" data-year="2016">
+                        <div class="year">2016</div>
+                    </div>
+                    <div class="year-item" data-year="2017">
+                        <div class="year">2017</div>
+                    </div>
+                    <div class="year-item" data-year="2018">
+                        <div class="year">2018</div>
+                    </div>
+                    <div class="year-item" data-year="2019">
+                        <div class="year">2019</div>
+                    </div>
+                    <div class="year-item" data-year="2020">
+                        <div class="year">2020</div>
+                    </div>
+                    <div class="year-item" data-year="2021">
+                        <div class="year">2021</div>
+                    </div>
+                    <div class="year-item" data-year="2022">
+                        <div class="year">2022</div>
+                    </div>
+                    <div class="year-item" data-year="2023">
+                        <div class="year">2023</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
